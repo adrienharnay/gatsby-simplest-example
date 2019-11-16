@@ -25,6 +25,18 @@ open http://localhost:8000/hello
 
 Open the devtools > network panel, and refresh the page. You should not notice any redirection.
 
+## Testing the fix
+
+```bash
+yarn patch-package
+rm -rf .cache public
+yarn build
+yarn serve
+open http://localhost:9000/hello
+```
+
+Open the devtools > network panel, and refresh the page. You should not notice any redirection.
+
 ## Notes
 
 - All dependencies have been upgraded to their latest version
