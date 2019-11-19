@@ -1,26 +1,26 @@
 diff --git a/node_modules/gatsby/dist/commands/serve.js b/node_modules/gatsby/dist/commands/serve.js
-index 9e5ec6a..3466efd 100644
+index 9e5ec6a..5c0c3ac 100644
 --- a/node_modules/gatsby/dist/commands/serve.js
 +++ b/node_modules/gatsby/dist/commands/serve.js
-@@ -93,7 +93,7 @@ module.exports = async program => {
+@@ -93,11 +93,20 @@ module.exports = async program => {
    const router = express.Router();
    app.use(telemetry.expressMiddleware(`SERVE`));
    router.use(compression());
 -  router.use(express.static(`public`));
-+  router.use(express.static(`public`, { extensions: [`html`] }));
++  router.use(express.static(`public`, { redirect: false }));
    const matchPaths = await readMatchPaths(program);
    router.use(matchPathRouter(matchPaths, {
      root
-diff --git a/node_modules/gatsby/dist/utils/worker/render-html.js b/node_modules/gatsby/dist/utils/worker/render-html.js
-index cda957f..a1d101e 100644
---- a/node_modules/gatsby/dist/utils/worker/render-html.js
-+++ b/node_modules/gatsby/dist/utils/worker/render-html.js
-@@ -14,7 +14,7 @@ const generatePathToOutput = outputPath => {
-   let outputFileName = outputPath.replace(/^(\/|\\)/, ``); // Remove leading slashes for webpack-dev-server
- 
-   if (!/\.(html?)$/i.test(outputFileName)) {
--    outputFileName = path.join(outputFileName, `index.html`);
-+    outputFileName = outputFileName + `${outputFileName.endsWith('/') ? 'index' : ''}.html`;
-   }
- 
-   return path.join(process.cwd(), `public`, outputFileName);
+   }));
++  router.use((req, res, next) => {
++    if (!/.+\..+$/g.test(req.url) && req.url.slice(-1) !== '/') {
++      res.sendFile(req.url + '/index.html', {
++        root
++      });
++    } else {
++      next();
++    }
++  });
+   router.use((req, res, next) => {
+     if (req.accepts(`html`)) {
+       return res.status(404).sendFile(`404.html`, {
