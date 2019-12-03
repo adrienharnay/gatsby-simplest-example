@@ -1,8 +1,8 @@
 diff --git a/node_modules/gatsby/dist/commands/serve.js b/node_modules/gatsby/dist/commands/serve.js
-index 9e5ec6a..5c0c3ac 100644
+index 9e5ec6a..84a7b3b 100644
 --- a/node_modules/gatsby/dist/commands/serve.js
 +++ b/node_modules/gatsby/dist/commands/serve.js
-@@ -93,11 +93,20 @@ module.exports = async program => {
+@@ -93,11 +93,22 @@ module.exports = async program => {
    const router = express.Router();
    app.use(telemetry.expressMiddleware(`SERVE`));
    router.use(compression());
@@ -13,7 +13,9 @@ index 9e5ec6a..5c0c3ac 100644
      root
    }));
 +  router.use((req, res, next) => {
-+    if (!/.+\..+$/g.test(req.url) && req.url.slice(-1) !== '/') {
++    // Handle URLs without trailing slashes, e.g. /hello => /hello/index.html
++    // Express already handles trailing slashes, e.g. /hello/ => /hello/index.html
++    if (req.url.slice(-1) !== '/') {
 +      res.sendFile(req.url + '/index.html', {
 +        root
 +      });
